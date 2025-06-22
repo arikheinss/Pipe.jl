@@ -40,9 +40,3 @@ macro >(e1, stuff...)
         pipe(default_symbol, arg_to_iter(e1)..., args...)
     end
 end
-
-macro 🍛(exprs...)
-    return :(println("🍛"^$(length(exprs))))
-end
-
-@🍛 println("asdf") hello 12 begin end
