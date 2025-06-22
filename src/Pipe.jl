@@ -1,3 +1,4 @@
+module Pipe
 using Base.Iterators:flatmap
 
 _inject(search :: Symbol, replace_with :: Any, into :: Any) = into
@@ -39,4 +40,6 @@ macro >(e1, stuff...)
     else
         pipe(default_symbol, arg_to_iter(e1)..., args...)
     end
+end
+
 end
