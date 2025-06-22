@@ -1,4 +1,5 @@
 module Pipe
+export @>
 using Base.Iterators:flatmap
 
 _inject(search :: Symbol, replace_with :: Any, into :: Any) = into
