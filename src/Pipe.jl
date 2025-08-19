@@ -3,7 +3,8 @@ export @>
 using Base.Iterators:flatmap
 
 _inject(search :: Symbol, replace_with :: Any, into :: Any) = into
-_inject(search :: Symbol, replace_with :: Any, into :: Union{Tuple, Array}) = replace(into, search=>replace_with)
+_inject(search :: Symbol, replace_with :: Any, into :: Symbol) = search == into ? replace_with : into
+_inject(search :: Symbol, replace_with :: Any, into :: Union{Tuple, Array}) = _inject.(search, replace_with, into)
 _inject(search :: Symbol, replace_with :: Any, into :: Expr) = 
     Expr( into.head, _inject(search, replace_with, into.args)...)
 
@@ -16,7 +17,7 @@ pipe(s :: Symbol, expr, expr2 :: Expr) = begin
     varname = gensym(s)
     body = _inject(s, varname, expr2)
     quote
-        let $varname = $expr 
+	let $(esc(varname)) = $expr 
             $body
         end
     end
@@ -30,9 +31,10 @@ macro >(e1, stuff...)
     # first, flatten out any begin ... end blocks
     arg_to_iter(arg) = 
         if arg isa Expr && arg.head == :block
-            filter(l -> !(l isa LineNumberNode), arg.args)
+	    [esc(l) for l in arg.args if !(l isa LineNumberNode)]
+            # filter(l -> !(l isa LineNumberNode), arg.args)
         else
-            (arg,)
+	    (esc(arg),)
         end
     args = flatmap(arg_to_iter, stuff) 
 
